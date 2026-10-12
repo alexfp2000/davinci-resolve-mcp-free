@@ -333,9 +333,12 @@ def menu_pick_tool(menu_path_json: str) -> dict:
     """
     if platform.system() != "Darwin":
         return {"ok": False, "error": "UI automation is macOS-only"}
-    from resolve_pilot.ui_automation import menu_pick
+    from resolve_pilot.ui_automation import StudioOnlyFeature, menu_pick
     path = json.loads(menu_path_json)
-    menu_pick(path)
+    try:
+        menu_pick(path)
+    except StudioOnlyFeature as e:
+        return {"ok": False, "path": path, "error": str(e)}
     return {"ok": True, "path": path}
 
 
@@ -359,10 +362,10 @@ def trigger_magic_mask(mode: str = "person") -> dict:
 
 @mcp.tool()
 def trigger_smart_reframe_tool(target_aspect: str = "9:16") -> dict:
-    """Open Smart Reframe with a target aspect.
+    """Return manual steps for Smart Reframe (Studio-only, Inspector-only in 21.x).
 
-    target_aspect: '1:1', '9:16', '4:5', '16:9'. The dialog opens; the user
-    confirms in the GUI because aspect popup clicking is per-build fragile.
+    target_aspect: '1:1', '9:16', '4:5', '16:9'. There is no menu entry to
+    automate, so this returns ok=False with instructions and touches no UI.
     """
     if platform.system() != "Darwin":
         return {"ok": False, "error": "UI automation is macOS-only"}
@@ -372,7 +375,11 @@ def trigger_smart_reframe_tool(target_aspect: str = "9:16") -> dict:
 
 @mcp.tool()
 def trigger_voice_isolation_tool(intensity: int = 60) -> dict:
-    """Open the Voice Isolation dialog. Studio-only feature."""
+    """Return manual steps for Voice Isolation (Studio-only, Inspector-only in 21.x).
+
+    There is no menu entry to automate, so this returns ok=False with
+    instructions and touches no UI.
+    """
     if platform.system() != "Darwin":
         return {"ok": False, "error": "UI automation is macOS-only"}
     from resolve_pilot.ui_automation.ai_features import trigger_voice_isolation
